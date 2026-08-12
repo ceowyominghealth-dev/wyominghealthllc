@@ -1,0 +1,26 @@
+# Your Smart Home Hub
+
+https://lovable.dev/projects/870a30dd-e35e-43ac-8b3e-c131539956f7
+
+This project was built with [Lovable](https://lovable.dev).
+
+**Live app**: https://wyominghealth.lovable.app
+
+## Build with Lovable
+
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/c6b7cbcd-2bf2-42b0-b8c0-e70f5149ca1e).
+
+- **Ship faster**: describe what you want to build and Lovable handles the code.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+
+## Development
+
+Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+
+```sh
+git clone <this-repository-url>
+cd <repository-name>
+npm i
+npm run dev
+```
