@@ -25,8 +25,8 @@ export function Contact() {
     (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
-  // Helper for direct Web Gmail link
-  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${CONTACT.email}`;
+  // Direct Gmail web compose link (works reliably across desktop & mobile browsers)
+  const gmailDirectUrl = `https://mail.google.com/mail/u/0/?fs=1&tf=cm&to=${encodeURIComponent(CONTACT.email)}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +92,7 @@ export function Contact() {
                 <span>
                   <span className="block text-primary-foreground/70">Email</span>
                   <a 
-                    href={gmailUrl}
+                    href={gmailDirectUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-semibold hover:text-brand-gold"
@@ -131,7 +131,7 @@ export function Contact() {
 
             <div className="mt-9 flex flex-wrap gap-3">
               <a
-                href={gmailUrl}
+                href={gmailDirectUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/25 bg-primary-foreground/10 px-4 py-3 text-sm font-semibold transition-colors hover:bg-primary-foreground/20"
