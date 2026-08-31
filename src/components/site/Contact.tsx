@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CONTACT } from "./data";
-import { Linkedin, Mail, Phone, Send } from "lucide-react";
+import { Linkedin, Mail, Phone, Send, Loader2 } from "lucide-react";
 
 const FIELD =
   "w-full rounded-lg border border-input bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-brand-gold focus:outline-none focus:ring-2 focus:ring-brand-gold/30";
@@ -15,21 +15,61 @@ export function Contact() {
     message: "",
   });
 
-  const update = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((prev) => ({ ...prev, [key]: e.target.value }));
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<{ type: "success" | "error" | ""; message: string }>({
+    type: "",
+    message: "",
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const update =
+    (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm((prev) => ({ ...prev, [key]: e.target.value }));
+
+  // Helper for direct Web Gmail link
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${CONTACT.email}`;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const subject = `Inquiry from ${form.name || "a practice"}${form.practice ? ` — ${form.practice}` : ""}`;
-    const body = [
-      `Name: ${form.name}`,
-      `Practice: ${form.practice}`,
-      `Email: ${form.email}`,
-      `Service needed: ${form.service}`,
-      "",
-      form.message,
-    ].join("\n");
-    window.location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setLoading(true);
+    setStatus({ type: "", message: "" });
+
+    const formData = new FormData();
+    formData.append("access_key", "6919684a-dce1-49f8-b65e-df106c0234bd");
+    formData.append("name", form.name);
+    formData.append("practice_name", form.practice);
+    formData.append("email", form.email);
+    formData.append("service_needed", form.service);
+    formData.append("message", form.message);
+    formData.append("subject", `New Inquiry from ${form.name || "Website Visitor"}`);
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setStatus({
+          type: "success",
+          message: "Thank you! Your inquiry has been sent successfully.",
+        });
+        setForm({ name: "", practice: "", email: "", service: "", message: "" });
+      } else {
+        setStatus({
+          type: "error",
+          message: data.message || "Something went wrong. Please try again.",
+        });
+      }
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: "Failed to send message. Please check your network connection.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,7 +91,12 @@ export function Contact() {
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-brand-gold" />
                 <span>
                   <span className="block text-primary-foreground/70">Email</span>
-                  <a href={`mailto:${CONTACT.email}`} className="font-semibold hover:text-brand-gold">
+                  <a 
+                    href={gmailUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold hover:text-brand-gold"
+                  >
                     {CONTACT.email}
                   </a>
                 </span>
@@ -86,7 +131,9 @@ export function Contact() {
 
             <div className="mt-9 flex flex-wrap gap-3">
               <a
-                href={`mailto:${CONTACT.email}`}
+                href={gmailUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/25 bg-primary-foreground/10 px-4 py-3 text-sm font-semibold transition-colors hover:bg-primary-foreground/20"
               >
                 <Mail className="h-4 w-4" /> Email us directly
@@ -106,25 +153,52 @@ export function Contact() {
                 <label className={LABEL} htmlFor="name">
                   Your name
                 </label>
-                <input id="name" className={`${FIELD} mt-2`} placeholder="Dr. Jane Smith" value={form.name} onChange={update("name")} />
+                <input
+                  id="name"
+                  required
+                  className={`${FIELD} mt-2`}
+                  placeholder="Dr. Jane Smith"
+                  value={form.name}
+                  onChange={update("name")}
+                />
               </div>
               <div>
                 <label className={LABEL} htmlFor="practice">
                   Practice name
                 </label>
-                <input id="practice" className={`${FIELD} mt-2`} placeholder="Sheridan Family Care" value={form.practice} onChange={update("practice")} />
+                <input
+                  id="practice"
+                  className={`${FIELD} mt-2`}
+                  placeholder="Sheridan Family Care"
+                  value={form.practice}
+                  onChange={update("practice")}
+                />
               </div>
               <div>
                 <label className={LABEL} htmlFor="email">
                   Email
                 </label>
-                <input id="email" type="email" className={`${FIELD} mt-2`} placeholder="you@practice.com" value={form.email} onChange={update("email")} />
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  className={`${FIELD} mt-2`}
+                  placeholder="you@practice.com"
+                  value={form.email}
+                  onChange={update("email")}
+                />
               </div>
               <div>
                 <label className={LABEL} htmlFor="service">
                   Service needed
                 </label>
-                <input id="service" className={`${FIELD} mt-2`} placeholder="Billing, coding, A/R..." value={form.service} onChange={update("service")} />
+                <input
+                  id="service"
+                  className={`${FIELD} mt-2`}
+                  placeholder="Billing, coding, A/R..."
+                  value={form.service}
+                  onChange={update("service")}
+                />
               </div>
             </div>
 
@@ -134,6 +208,7 @@ export function Contact() {
               </label>
               <textarea
                 id="message"
+                required
                 rows={4}
                 className={`${FIELD} mt-2 resize-y`}
                 placeholder="Specialty, monthly claim volume, current days in A/R..."
@@ -144,14 +219,30 @@ export function Contact() {
 
             <button
               type="submit"
-              className="mt-7 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-card)] transition-opacity hover:opacity-90"
+              disabled={loading}
+              className="mt-7 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-card)] transition-opacity hover:opacity-90 disabled:opacity-50"
               style={{ backgroundImage: "var(--gradient-gold)" }}
             >
-              Send inquiry <Send className="h-4 w-4" />
+              {loading ? (
+                <>
+                  Sending... <Loader2 className="h-4 w-4 animate-spin" />
+                </>
+              ) : (
+                <>
+                  Send inquiry <Send className="h-4 w-4" />
+                </>
+              )}
             </button>
-            <p className="mt-4 text-xs text-muted-foreground">
-              This opens your email app with the details filled in, addressed to {CONTACT.email}.
-            </p>
+
+            {status.message && (
+              <p
+                className={`mt-4 text-xs font-medium ${
+                  status.type === "success" ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                {status.message}
+              </p>
+            )}
           </form>
         </div>
       </div>
