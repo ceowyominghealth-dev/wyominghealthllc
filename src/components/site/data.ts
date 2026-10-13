@@ -138,7 +138,7 @@ export const WHY_US = [
 
 export const CONTACT = {
   email: "contact@wyominghealthllc.com",
-  phone: "+1-307 317 4342",
+  phone: "+1-307 394 5153",
   linkedin: "https://linkedin.com/company/wyominghealthllc",
   address: "30, Sheridan County, Wyoming 82801, United States",
 };
